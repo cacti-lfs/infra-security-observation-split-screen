@@ -64,7 +64,7 @@
 
     - name: Creation service Systemd
       copy:
-        dest: etc/systemd/system/timeapp.service
+        dest: /etc/systemd/system/timeapp.service
         content: |
           [Unit]
           Description=Gunicorn instance for TimeApp
@@ -79,7 +79,8 @@
 
           [Install]
           WantedBy=multi-user.target
-      notify: Restart TimeApp
+      become: yes
+#      notify: Restart TimeApp
 
     - name: Acivation du Service TimeApp
       systemd:
@@ -87,3 +88,4 @@
         state: started
         enabled: yes
         daemon_reload: yes
+      become: yes
