@@ -60,3 +60,29 @@
               app.run(host='0.0.0.0')
       become: yes
       notify: Restart TimeApp
+
+    - name: Creation service Systemd
+      copy:
+        dest: etc/systemd/system/timeapp.service
+        content: |
+          [Unit]
+          Description=Gunicorn instance for TimeApp
+          After=network.target
+
+          [Service]
+          User={{ app_user }}
+          Group={{ app_group }}
+          WorkingDirectory={{ app_dir }}
+          ExecStart={{ venv_path }}/bin/gunicorn --workers 3 --bind 0.0.0.0:8000 app:app
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+      notify: Restart TimeApp
+
+    - name: Acivation du Service TimeApp
+      systemd:
+        name: timeapp
+        state: started
+        enabled: yes
+        daemon_reload: yes
