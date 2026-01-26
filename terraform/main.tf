@@ -191,6 +191,10 @@ resource "proxmox_vm_qemu" "vm_bastion" {
     agent = 1
     os_type = "cloud-init"
 
+    # Création du compte local
+    ciuser = "cloudadm"
+    cipassword = var.cloudadm_password
+
     # Ressources (Possibilité de surcharger les valeurs du template ici)
     cpu {
         type = "host"
