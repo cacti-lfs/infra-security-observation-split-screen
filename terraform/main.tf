@@ -15,14 +15,14 @@ provider "proxmox" {
     pm_tls_insecure = true
 }
 
-resource "proxmox_vm_qemu" "vm_ubuntu" {
+resource "proxmox_vm_qemu" "vm_reverse_proxy" {
     # Nom de la VM
-    name = "01-SRV-UBU-24.04.5" # A personnaliser
+    name = "01-SRV-RVPRX-TRIX" # A personnaliser
     vmid = 200
-    target_node = "node1"
+    target_node = "proxmox"
     
     # Nom du template exact du template Proxmox
-    clone = "ubuntu-2404-cloud-template" # A personnaliser
+    clone = "debian-13.3.0-cloud-template" # A personnaliser
 
     # Type de clone (full#linked)
     full_clone= true
@@ -34,7 +34,7 @@ resource "proxmox_vm_qemu" "vm_ubuntu" {
     # Ressources (Possibilité de surcharger les valeurs du template ici)
     cpu {
         type = "host"
-        cores = 2
+        cores = 1
         sockets = 1
     }
     memory = 2048
@@ -50,11 +50,10 @@ resource "proxmox_vm_qemu" "vm_ubuntu" {
     # Spécifier taille + stockage pour que Terraform sache où mettre le clone
     disk {
         slot = "scsi0"
-        size = "20"
+        size = "25"
         type = "disk"
-        storage = "local-zfs"
+        storage = "local-lvm"
     }
-
     vga {
         type = "std"
     }
