@@ -92,6 +92,6 @@
 
   handlers:
     - name: Restart TimeApp
-    systemd:
-      name: timeapp
-      state: restarted  
+      systemd:
+        name: timeapp
+        state: restarted

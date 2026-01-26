@@ -5,30 +5,39 @@
   gather_facts: yes
 
   tasks:
+    - name: Nettoyage complet des résidus Apt Grafana
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/apt/sources.list.d/grafana.list
+        - /etc/apt/sources.list.d/grafana.sources
+      become: yes
+
+    - name: Purge du cache Apt corrompu
+      command: apt-get clean
+      become: yes
+
     - name: Installation de gnupg et wget
       apt:
-        name: 
-          - gnupg
-          - wget
+        name: [gnupg, wget]
         state: present
         update_cache: yes
       become: yes
 
-    - name: Création du dossier pour les clés
+    - name: Création du dossier keyrings
       file:
         path: /etc/apt/keyrings
         state: directory
         mode: '0755'
       become: yes
 
-    - name: Téléchargement et installation de la clé GPG Grafana
+    - name: Installation de la clé GPG (méthode de-armored)
       shell: |
-        wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor > /etc/apt/keyrings/grafana.gpg
+        wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor --yes -o /etc/apt/keyrings/grafana.gpg
       become: yes
-      args:
-        creates: /etc/apt/keyrings/grafana.gpg
 
-    - name: Ajout du dépôt Grafana
+    - name: Ajout du dépôt Grafana (Format Moderne)
       copy:
         dest: /etc/apt/sources.list.d/grafana.sources
         content: |
@@ -46,7 +55,7 @@
         update_cache: yes
       become: yes
 
-    - name: Démarrage de Grafana
+    - name: Start Grafana
       service:
         name: grafana-server
         state: started
