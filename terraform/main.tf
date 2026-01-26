@@ -173,6 +173,60 @@ resource "proxmox_vm_qemu" "vm_supervision" {
     # Configuration SSH
     sshkeys = var.ssh_rsa_key
 }
+
+# VM Bastion
+resource "proxmox_vm_qemu" "vm_bastion" {
+    # Nom de la VM
+    name = "01-SRV-BAST-TRIX" # A personnaliser
+    vmid = 203
+    target_node = "proxmox"
+    
+    # Nom du template exact du template Proxmox
+    clone = "debian-13.3.0-cloud-template" # A personnaliser
+
+    # Type de clone (full#linked)
+    full_clone= true
+
+    # Configuration système (DOIT être cohérent avec template)
+    agent = 1
+    os_type = "cloud-init"
+
+    # Ressources (Possibilité de surcharger les valeurs du template ici)
+    cpu {
+        type = "host"
+        cores = 1
+        sockets = 1
+    }
+    memory = 2048
+
+    # Réseau
+    network {
+        model = "virtio"
+        bridge = "vmbr0"
+        id = 0
+    }
+    skip_ipv6 = true
+    # Disque
+    # Spécifier taille + stockage pour que Terraform sache où mettre le clone
+    disk {
+        slot = "scsi0"
+        size = "25"
+        type = "disk"
+        storage = "local-lvm"
+    }
+    vga {
+        type = "std"
+    }
+    # Ordre du boot
+    boot = "order=scsi0;net0"
+
+    # cloud-init
+    ipconfig0 = "ip=dhcp"
+
+    # Configuration SSH
+    sshkeys = var.ssh_rsa_key
+}
+
 # Création d'une map pour faciliter le parsing par Ansible
 output "proxmox_vms" {
   value = {
