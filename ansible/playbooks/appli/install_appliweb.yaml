@@ -7,6 +7,7 @@
     app_dir: /srv/
     app_user: www-data
     app_group: www-data
+    venv_path: "{{ app_dir }}/venv"
   tasks:
     - name: Installation python3
       apt:
