@@ -32,6 +32,10 @@ resource "proxmox_vm_qemu" "vm_reverse_proxy" {
     agent = 1
     os_type = "cloud-init"
 
+    # Création du compte local
+    ciuser = "cloudadm"
+    cipassword = var.cloudadm_password
+
     # Ressources (Possibilité de surcharger les valeurs du template ici)
     cpu {
         type = "host"
@@ -65,7 +69,7 @@ resource "proxmox_vm_qemu" "vm_reverse_proxy" {
     ipconfig0 = "ip=dhcp"
 
     # Configuration SSH
-    sshkeys = var.ssh_rsa_key
+    sshkeys = trimspace(var.ssh_rsa_key)
 }
 
 # VM Applicatif
@@ -85,6 +89,10 @@ resource "proxmox_vm_qemu" "vm_appli" {
     agent = 1
     os_type = "cloud-init"
 
+    # Création du compte local
+    ciuser = "cloudadm"
+    cipassword = var.cloudadm_password
+
     # Ressources (Possibilité de surcharger les valeurs du template ici)
     cpu {
         type = "host"
@@ -118,7 +126,7 @@ resource "proxmox_vm_qemu" "vm_appli" {
     ipconfig0 = "ip=dhcp"
 
     # Configuration SSH
-    sshkeys = var.ssh_rsa_key
+    sshkeys = trimspace(var.ssh_rsa_key)
 }
 
 # VM Supervision
@@ -138,6 +146,10 @@ resource "proxmox_vm_qemu" "vm_supervision" {
     agent = 1
     os_type = "cloud-init"
 
+    # Création du compte local
+    ciuser = "cloudadm"
+    cipassword = var.cloudadm_password
+
     # Ressources (Possibilité de surcharger les valeurs du template ici)
     cpu {
         type = "host"
@@ -171,7 +183,7 @@ resource "proxmox_vm_qemu" "vm_supervision" {
     ipconfig0 = "ip=dhcp"
 
     # Configuration SSH
-    sshkeys = var.ssh_rsa_key
+    sshkeys = trimspace(var.ssh_rsa_key)
 }
 
 # VM Bastion
@@ -228,5 +240,5 @@ resource "proxmox_vm_qemu" "vm_bastion" {
     ipconfig0 = "ip=dhcp"
 
     # Configuration SSH
-    sshkeys = var.ssh_rsa_key
+    sshkeys = trimspace(var.ssh_rsa_key)
 }

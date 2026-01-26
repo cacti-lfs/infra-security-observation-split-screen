@@ -1,12 +1,12 @@
 ansible_user: cloudadm
-ansible_ssh_private_key_file: ~/.ssh/id_rsa
+ansible_ssh_private_key_file: ~/.ssh/id_ed25519
 
-# Configuration de rebond dynamique
-ansible_ssh_common_args : >
+# Configuration du rebond SSH
+ansible_ssh_common_args: >
   {% if inventory_hostname != '01-SRV-BAST-TRIX' %}
-  -o ProxyJump=cloudadm@{{ hostvars['01-SRV-BAST-TRIX']['ansible_host'] }}
+  -o ProxyJump=cloudadm@10.60.11.25
   {% endif %}
 
-ansible_become: yes
-ansible_become_method: sudo
-ansible_become_password: "{{ cloudadm_password_secret }}"
+# ansible_become: yes
+# ansible_become_method: sudo
+# ansible_become_password: "{{ cloudadm_password_secret }}"
