@@ -1,0 +1,6 @@
+terraform/terraform.tfvars
+terraform/.terraform*
+terraform/terraform.tfstate
+ansible/.venv
+terraform/terraform.tfstate.backup
+ansible/setup_env.sh
