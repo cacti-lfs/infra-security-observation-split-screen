@@ -1,0 +1,26 @@
+---
+- name: Configuration appli web
+  hosts: role_APPLI
+  remote_user: cloudadm
+  gather_facts: yes
+  vars:
+    app_dir: /srv/
+  tasks:
+    - name: Installation python3
+      apt:
+        name: 
+          - python3-pip
+          - python3-venv
+          - python3-full
+        state: present
+        update_cache: yes
+      become: yes
+
+    - name: 
+      pip:
+        name:
+          - flask
+          - gunicorn
+        virtualenv: /home/cloudadm/app_venv
+        virtualenv_command: python3 -m venv
+
