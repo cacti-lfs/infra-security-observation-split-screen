@@ -28,18 +28,19 @@
 
     - name: Creation du répertoire
       file:
-        path: "{{app_dir}}"
+        path: "{{ app_dir }}"
         state: directory
-        owner: "{{app_user}}"
-        group: "{{app_group}}"
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
         mode: '0755'
+      become: yes
     
     - name: Deployement code python
       copy:
-        dest: "{{app_dir}}"/app.py"
-        owner: "{{app_user}}"
-        group: "{{app_group}}"
-        node: '0644'
+        dest: "{{ app_dir }}/app.py"
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+        mode: '0644'
         content: |
           from flask import Flask, jsonify
           from datetime import datetime
@@ -57,7 +58,5 @@
 
           if __name__ == "__main__":
               app.run(host='0.0.0.0')
+      become: yes
       notify: Restart TimeApp
-
-
-
