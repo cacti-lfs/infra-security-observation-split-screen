@@ -80,7 +80,7 @@
           [Install]
           WantedBy=multi-user.target
       become: yes
-#      notify: Restart TimeApp
+      notify: Restart TimeApp
 
     - name: Acivation du Service TimeApp
       systemd:
@@ -89,3 +89,9 @@
         enabled: yes
         daemon_reload: yes
       become: yes
+
+  handlers:
+    - name: Restart TimeApp
+    systemd:
+      name: timeapp
+      state: restarted  
