@@ -1,32 +1,38 @@
 ---
-- name: Configuration du Reverse Proxy Nginx
+- name: Configuration du Reverse Proxy
   hosts: role_RVPRX
   remote_user: cloudadm
-  gather_facts: yes 
-  
-  tasks:
-    - name: Mise à jour du cache apt
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600
-      become: yes
+  gather_facts: yes
 
+  tasks:
     - name: Installation de Nginx
       apt:
         name: nginx
         state: present
+        update_cache: yes
       become: yes
 
-    - name: S'assurer que Nginx est démarré et activé au boot
+    - name: Déploiement de la configuration Reverse Proxy
+      template:
+        src: templates/reverse_proxy.conf.j2
+        dest: /etc/nginx/sites-available/reverse_proxy.conf
+      become: yes
+
+    - name: Activation de la configuration
+      file:
+        src: /etc/nginx/sites-available/reverse_proxy.conf
+        dest: /etc/nginx/sites-enabled/reverse_proxy.conf
+        state: link
+      become: yes
+
+    - name: Suppression de la configuration par défaut de Nginx
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      become: yes
+
+    - name: Redémarrage de Nginx
       service:
         name: nginx
-        state: started
-        enabled: yes
-      become: yes
-
-    - name: Création d'une page d'accueil personnalisée
-      copy:
-        content: "<h1>Bienvenue sur le Reverse Proxy de SPLIT SCREEN</h1>"
-        dest: /var/www/html/index.html
-        mode: '0644'
+        state: restarted
       become: yes
