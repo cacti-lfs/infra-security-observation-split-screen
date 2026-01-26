@@ -21,7 +21,7 @@ variable "ssh_rsa_key" {
     description = "Clef publique SSH pour les VMS"
 }
 
-variable "loudadm_password" {
+variable "cloudadm_password" {
     type = string
     sensitive = true
     description = "MDP cloudadm"
