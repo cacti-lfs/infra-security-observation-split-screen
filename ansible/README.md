@@ -1,6 +1,6 @@
 # Ansible
 
-Pour une meilleure isolation des environnements, il est recommandé de créer des environnements virtualisés python et d'utiliser le `requirements.txt` pour que les dépendances soient communes à celles du projet homelab-cloud-platform.
+Pour une meilleure isolation des environnements, il est recommandé de créer des environnements virtualisés python et d'utiliser le `requirements.txt` pour que les dépendances soient communes à celles du projet infra-security-observation.
 
 ## Création d'un environnement `.venv`
 - Installation de python
@@ -29,3 +29,37 @@ pip install --upgrade pip
 ```bash
 pip install -r requirements.txt
 ```
+
+- Modifier son fichier `activate`ou créer un `setup_env.sh` avec les credentials de Proxmox pour Ansible
+Exemple type de `setup_env.sh` :
+```bash
+#!/bin/bash
+export PROXMOX_URL="http://XX.XX.XX.XX:8006"
+export PROXMOX_USER="ansible-prov@pve"
+# Format attendu par le plugin : nom_utilisateur!nom_token
+export PROXMOX_TOKEN_ID="ansible"
+export PROXMOX_TOKEN_SECRET=""
+```
+
+## Configuration Ansible
+
+- Création d'un role Ansible
+```bash
+pveum role add AnsibleProv -privs "Datastore.Allocate Datastore.AllocateSpace Datastore.Audit Pool.Allocate Sys.Audit Sys.Console Sys.Modify VM.Allocate VM.Audit VM.Clone VM.Config.CDROM VM.Config.Cloudinit VM.Config.CPU VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Console VM.Migrate VM.PowerMgmt SDN.Use Pool.Audit VM.GuestAgent.Audit"
+```
+
+- Création d'un utilisateur Ansible
+```bash
+pveum user add ansible-prov@pve --password <password>
+```
+
+- Attribution d'u rôle Ansible à l'utilisateur
+```bash
+pveum user add ansible-prov@pve --password <password>
+```
+
+- Création d'un token
+```bash
+pveum user token add ansible-prov@pve ansible -expire 0 -privsep 0 -comment "Ansible token"
+```
+
