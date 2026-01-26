@@ -20,3 +20,9 @@ variable "ssh_rsa_key" {
     sensitive = true
     description = "Clef publique SSH pour les VMS"
 }
+
+variable "loudadm_password" {
+    type = string
+    sensitive = true
+    description = "MDP cloudadm"
+}
