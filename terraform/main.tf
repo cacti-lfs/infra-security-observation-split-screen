@@ -75,7 +75,7 @@ resource "proxmox_vm_qemu" "vm_reverse_proxy" {
 # VM Applicatif
 resource "proxmox_vm_qemu" "vm_appli" {
     # Nom de la VM
-    name = "02-SRV-APPLI-TRIX" # A personnaliser
+    name = "01-SRV-APPLI-TRIX" # A personnaliser
     vmid = 201
     target_node = "proxmox"
     
@@ -132,7 +132,7 @@ resource "proxmox_vm_qemu" "vm_appli" {
 # VM Supervision
 resource "proxmox_vm_qemu" "vm_supervision" {
     # Nom de la VM
-    name = "03-SRV-SUP-TRIX" # A personnaliser
+    name = "01-SRV-SUP-TRIX" # A personnaliser
     vmid = 202
     target_node = "proxmox"
     

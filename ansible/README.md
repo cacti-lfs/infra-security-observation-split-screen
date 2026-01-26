@@ -63,3 +63,9 @@ pveum user add ansible-prov@pve --password <password>
 pveum user token add ansible-prov@pve ansible -expire 0 -privsep 0 -comment "Ansible token"
 ```
 
+## Plugins pour l'inventaire
+
+- Installation du plugin Proxmox
+```bash
+ansible-galaxy collection install git+https://github.com/ansible-collections/community.proxmox.git
+```

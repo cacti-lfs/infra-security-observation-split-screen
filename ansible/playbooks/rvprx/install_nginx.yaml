@@ -1,6 +1,7 @@
 ---
 - name: Configuration du Reverse Proxy Nginx
   hosts: role_RVPRX
+  remote_user: cloudadm
   gather_facts: yes 
   
   tasks:
@@ -25,7 +26,7 @@
 
     - name: Création d'une page d'accueil personnalisée
       copy:
-        content: "<h1>Bienvenue sur le Reverse Proxy de SPLIT SCREEN - Géré par Ansible</h1>"
+        content: "<h1>Bienvenue sur le Reverse Proxy de SPLIT SCREEN</h1>"
         dest: /var/www/html/index.html
         mode: '0644'
       become: yes
