@@ -16,6 +16,7 @@
           - python3-pip
           - python3-venv
           - python3-full
+          - iptables-persistent
         state: present
         update_cache: yes
       become: yes
@@ -122,6 +123,24 @@
         enabled: yes
         daemon_reload: yes
       become: yes
+
+    - name : Autorisation Ports
+      iptables:
+        chain: INPUT
+        protocole: tcp
+        destination_port: "{{ item }}"
+        jump: ACCEPT
+      loop: [ '22', '8000' ]
+
+    - name: Bloquage du reste (ping)
+      iptables: 
+        chain: INPUT
+        policy: DROP
+
+    - name: Sauvegarde de iptable
+      shell: netfilter-persistent save
+      become: true
+    
 
 
   handlers:
