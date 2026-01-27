@@ -3,7 +3,7 @@ server {
     server_name _; # Répond à toutes les requêtes arrivant sur l'IP du RVPRX
 
     location / {
-        proxy_pass http://{{ hostvars['01-SRV-APPLI-TRIX']['ansible_host'] }};
+        proxy_pass http://{{ hostvars['01-SRV-APPLI-TRIX']['ansible_host'] }}:8000;
         
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
