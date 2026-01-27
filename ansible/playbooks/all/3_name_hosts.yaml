@@ -1,0 +1,22 @@
+---
+- name: Mise à jour du hostname des machines
+  hosts: role_ALL
+  become: yes
+  remote_user: cloudadm
+
+  tasks:
+    - name: Configurer le hostname système
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}"
+
+    - name: Mettre à jour le fichier /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        regexp: '^127\.0\.1\.1'
+        line: "127.0.1.1 {{ inventory_hostname }}"
+        state: present
+
+    - name: Redémarrer le service systemd-hostnamed
+      ansible.builtin.systemd:
+        name: systemd-hostnamed
+        state: restarted

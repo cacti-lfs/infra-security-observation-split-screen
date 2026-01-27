@@ -63,7 +63,7 @@
               labels:
                 job: varlogs
                 # Récupère automatiquement le nom de la machine dans l'inventaire
-                host: {{ inventory_hostname }}
+                host: "{{ inventory_hostname }}"
                 __path__: /var/log/*.log
       notify: Restart Promtail
       become: yes

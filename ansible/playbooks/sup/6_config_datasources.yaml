@@ -9,21 +9,22 @@
   tasks:
     - name: Ajouter InfluxDB comme source de données (Métriques)
       community.grafana.grafana_datasource:
-        name: "InfluxDB"
+        name: "InfluxDB-Trix"
         ds_type: "influxdb"
-        url: "http://localhost:8086"
-        database: "telegraf" 
-        user: "admin"        
-        password: "{{ influxdb_password | default('') }}"
+        ds_url: "http://localhost:8086" 
+        database: "telegraf"
         grafana_url: "http://localhost:3000"
-        url_username: "admin"
-        url_password: "{{ grafana_admin_password }}"
+        grafana_user: "admin"
+        grafana_password: "{{ grafana_admin_password }}"
+        state: present
+        validate_certs: no 
 
     - name: Ajouter Loki comme source de données (Logs)
       community.grafana.grafana_datasource:
-        name: "Loki"
+        name: "Loki-Trix"
         ds_type: "loki"
-        url: "http://localhost:3100"
+        ds_url: "http://localhost:3100"
         grafana_url: "http://localhost:3000"
-        url_username: "admin"
-        url_password: "{{ grafana_admin_password }}"
+        grafana_user: "admin"
+        grafana_password: "{{ grafana_admin_password }}"
+        state: present
