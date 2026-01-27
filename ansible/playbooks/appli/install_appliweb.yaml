@@ -9,8 +9,9 @@
     app_group: www-data
     venv_path: "{{ app_dir }}/venv"
     db_path: "{{ app_dir }}/stats.db"
+
   tasks:
-    - name: Installation python3
+    - name: Installation python3 et firewall
       apt:
         name: 
           - python3-pip
@@ -31,13 +32,13 @@
         virtualenv_command: python3 -m venv
       become: yes
 
-    - name: Creation du répertoire
+    - name: Creation du répertoire applicatif
       file:
         path: "{{ app_dir }}"
         state: directory
         owner: "{{ app_user }}"
         group: "{{ app_group }}"
-        mode: '0755'
+        mode: '0775' # On donne les droits d'écriture pour SQLite
       become: yes
     
     - name: Deployement code python
@@ -53,7 +54,6 @@
           from flask_sqlalchemy import SQLAlchemy
 
           app = Flask(__name__)
-
           basedir = os.path.abspath(os.path.dirname(__file__))
           app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'stats.db')
           app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -69,27 +69,12 @@
 
           @app.route('/')
           def index():
-              # 1. On ajoute une visite dans la BDD
               new_visit = Visit()
               db.session.add(new_visit)
               db.session.commit()
-
-              # 2. On compte le total
               count = Visit.query.count()
               now = datetime.now().strftime("%H:%M:%S")
-              
-              return f"<h1>Heure : {now}</h1><hr><p>Cette page a été vue <strong>{count}</strong> fois.</p>"
-
-          @app.route('/health')
-          def health():
-              # Petit test pour voir si la BDD répond
-              try:
-                  db.session.execute(db.text('SELECT 1'))
-                  db_status = "OK"
-              except:
-                  db_status = "ERROR"
-                  
-              return jsonify(status="UP", db=db_status, timestamp=datetime.now().isoformat()), 200
+              return f"<h1>Heure : {now}</h1><hr><p>Vue <strong>{count}</strong> fois.</p>"
 
           if __name__ == "__main__":
               app.run(host='0.0.0.0')
@@ -101,7 +86,7 @@
         dest: /etc/systemd/system/timeapp.service
         content: |
           [Unit]
-          Description=Gunicorn instance for TimeApp
+          Description=Gunicorn for TimeApp
           After=network.target
 
           [Service]
@@ -116,7 +101,7 @@
       become: yes
       notify: Restart TimeApp
 
-    - name: Acivation du Service TimeApp
+    - name: Activation du Service TimeApp
       systemd:
         name: timeapp
         state: started
@@ -124,28 +109,42 @@
         daemon_reload: yes
       become: yes
 
-    - name : Autorisation Ports
+    - name: Autorisation du trafic local (Loopback)
       iptables:
         chain: INPUT
-        protocole: tcp
+        in_interface: lo
+        jump: ACCEPT
+      become: yes
+
+    - name: Autorisation des connexions dejà établies
+      iptables:
+        chain: INPUT
+        ctstate: ESTABLISHED,RELATED
+        jump: ACCEPT
+      become: yes
+
+    - name: Autorisation Ports SSH et App
+      iptables:
+        chain: INPUT
+        protocol: tcp
         destination_port: "{{ item }}"
         jump: ACCEPT
       loop: [ '22', '8000' ]
+      become: yes
 
-    - name: Bloquage du reste (ping)
+    - name: Passage de la politique INPUT en DROP
       iptables: 
         chain: INPUT
         policy: DROP
+      become: yes
 
-    - name: Sauvegarde de iptable
+    - name: Sauvegarde permanente de iptables
       shell: netfilter-persistent save
-      become: true
-    
-
+      become: yes
 
   handlers:
     - name: Restart TimeApp
       systemd:
         name: timeapp
         state: restarted
-      become: true
+      become: yes
