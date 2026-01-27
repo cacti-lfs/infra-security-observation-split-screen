@@ -12,8 +12,8 @@
         name: "InfluxDB-Trix"
         ds_type: "influxdb"
         url: "http://localhost:8086"
-        database: "telegraf" # Nom de la DB créée par Telegraf
-        user: "admin"        # Si tu as activé l'auth InfluxDB
+        database: "telegraf" 
+        user: "admin"        
         password: "{{ influxdb_password | default('') }}"
         grafana_url: "http://localhost:3000"
         url_username: "admin"
