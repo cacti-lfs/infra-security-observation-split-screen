@@ -9,3 +9,5 @@ keyed_groups:
   - prefix: role
     key: proxmox_name.split('-')[2]
     separator: "_"
+groups:
+  role_ALL: "'TRIX' in proxmox_name"
