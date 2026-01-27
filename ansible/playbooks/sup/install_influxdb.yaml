@@ -1,4 +1,36 @@
 ---
-- name: Installation d'InfluxDB
+- name: Installation d'InfluxDB (Dépôts officiels Debian)
   hosts: role_SUP
-  remote_user
+  remote_user: cloudadm
+  gather_facts: yes
+
+  tasks:
+    - name: Nettoyage total des dépôts tiers Influx
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/apt/sources.list.d/influxdata.sources
+        - /etc/apt/sources.list.d/influxdata.list
+        - /etc/apt/sources.list.d/influxdb.list
+        - /etc/apt/trusted.gpg.d/influxdata.gpg
+        - /etc/apt/keyrings/influxdata.gpg
+      become: yes
+
+    - name: Mise à jour du cache système
+      apt:
+        update_cache: yes
+      become: yes
+
+    - name: Installation d'InfluxDB via dépôts Debian
+      apt:
+        name: influxdb
+        state: present
+      become: yes
+
+    - name: Activation et démarrage
+      service:
+        name: influxdb
+        state: started
+        enabled: yes
+      become: yes
