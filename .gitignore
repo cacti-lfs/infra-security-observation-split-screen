@@ -5,3 +5,4 @@ ansible/.venv
 terraform/terraform.tfstate.backup
 ansible/setup_env.sh
 ansible/playbooks/sup/vars/.*
+ansible/.DS_Store
