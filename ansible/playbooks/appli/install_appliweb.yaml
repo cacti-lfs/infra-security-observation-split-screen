@@ -127,3 +127,4 @@
       systemd:
         name: timeapp
         state: restarted
+      become: true
