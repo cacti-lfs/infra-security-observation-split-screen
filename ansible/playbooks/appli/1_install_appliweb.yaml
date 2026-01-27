@@ -109,6 +109,18 @@
         daemon_reload: yes
       become: yes
 
+    - name: Anti-Lockout (Remettre en accept par defaut)
+      iptables:
+        chain: INPUT
+        policy: ACCEPT
+      become: yes
+
+    - name : Vider les règles existantes
+      iptables:
+        chain: INPUT
+        flush: yes
+      become: yes
+
     - name: Autorisation du trafic local (Loopback)
       iptables:
         chain: INPUT
