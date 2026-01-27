@@ -1,0 +1,4 @@
+---
+- name: Installation d'InfluxDB
+  hosts: role_SUP
+  remote_user
