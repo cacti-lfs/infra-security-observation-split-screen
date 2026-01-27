@@ -1,0 +1,83 @@
+---
+- name: Installation de Grafana Loki
+  hosts: role_SUP
+  remote_user: cloudadm
+  become: yes
+
+  vars:
+    loki_version: "2.9.4"
+
+  tasks:
+    - name: Installation de unzip
+      apt:
+        name: unzip
+        state: present
+        update_cache: yes
+
+    - name: Téléchargement du binaire Loki
+      get_url:
+        url: "https://github.com/grafana/loki/releases/download/v{{ loki_version }}/loki-linux-amd64.zip"
+        dest: "/tmp/loki.zip"
+
+    - name: Extraction du binaire
+      unarchive:
+        src: "/tmp/loki.zip"
+        dest: "/usr/local/bin"
+        remote_src: yes
+        mode: '0755'
+
+    - name: Création du répertoire de configuration
+      file:
+        path: /etc/loki
+        state: directory
+
+    - name: Déploiement de la configuration par défaut de Loki
+      copy:
+        dest: /etc/loki/loki-config.yaml
+        content: |
+          auth_enabled: false
+          server:
+            http_listen_port: 3100
+          common:
+            path_prefix: /tmp/loki
+            storage:
+              filesystem:
+                chunks_directory: /tmp/loki/chunks
+                rules_directory: /tmp/loki/rules
+            replication_factor: 1
+            ring:
+              instance_addr: 127.0.0.1
+              kvstore:
+                store: inmemory
+          schema_config:
+            configs:
+              - from: 2020-10-24
+                store: boltdb-shipper
+                object_store: filesystem
+                schema: v11
+                index:
+                  prefix: index_
+                  period: 24h
+
+    - name: Création du service Systemd pour Loki
+      copy:
+        dest: /etc/systemd/system/loki.service
+        content: |
+          [Unit]
+          Description=Grafana Loki
+          After=network.target
+
+          [Service]
+          Type=simple
+          ExecStart=/usr/local/bin/loki-linux-amd64 -config.file=/etc/loki/loki-config.yaml
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Démarrage de Loki
+      systemd:
+        name: loki
+        state: started
+        enabled: yes
+        daemon_reload: yes
