@@ -1,0 +1,120 @@
+---
+- name: Installation et Configuration de Telegraf
+  hosts: role_ALL
+  remote_user: cloudadm
+  gather_facts: yes
+
+  vars:
+    influx_ip: "10.60.11.27"
+
+  tasks: 
+    - name: Nettoyage config Influx cassée
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/apt/sources.list.d/influxdata.list
+        - /etc/apt/keyrings/influxdata-archive_compat.gpg
+      become: yes
+    
+    - name: Installation des packets
+      apt:
+        name: 
+          - wget 
+          - gnupg
+          - apt-transport-https
+        state: present
+        update_cache: yes
+      become: yes
+    
+    - name : Création du dossier pour les clés
+      file: 
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+      become: yes
+
+    - name: Téléchargement clé GPG InfluxData
+      shell: |
+        wget -q -O - https://repos.influxdata.com/influxdata-archive.key | gpg --dearmor --yes -o /etc/apt/keyrings/influxdata-archive.gpg
+      args:
+        creates: /etc/apt/keyrings/influxdata-archive.gpg
+      become: yes
+
+    - name: Ajout du dépôt InfluxData
+      copy:
+        dest: /etc/apt/sources.list.d/influxdata.list
+        content: |
+
+          deb [signed-by=/etc/apt/keyrings/influxdata-archive.gpg] https://repos.influxdata.com/debian stable main
+      notify: Update Apt Cache
+      become: yes
+
+    - name: Maj du cache
+      apt: 
+        update_cache: yes
+      changed_when: False
+      become: yes
+
+    - name: Installation de telegraf
+      apt: 
+        name: telegraf
+        state: present
+      become: yes
+
+    - name: Configuration de Telegraf
+      copy:
+        dest: /etc/telegraf/telegraf.conf
+        content: |
+          [global_tags]
+          [agent]
+            interval = "10s"
+            round_interval = true
+            metric_batch_size = 1000
+            metric_buffer_limit = 10000
+            collection_jitter = "0s"
+            flush_interval = "10s"
+            flush_jitter = "0s"
+            precision = ""
+            hostname = ""
+            omit_hostname = false
+
+          [[outputs.influxdb]]
+            urls = ["http://{{ influx_ip }}:8086"]
+            database = "telegraf"
+
+          [[inputs.cpu]]
+            percpu = true
+            totalcpu = true
+            collect_cpu_time = false
+            report_active = false
+          [[inputs.disk]]
+            ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+          [[inputs.diskio]]
+          [[inputs.mem]]
+          [[inputs.net]]
+          [[inputs.processes]]
+          [[inputs.swap]]
+          [[inputs.system]]
+      notify: Restart Telegraf
+      become: yes
+
+    - name: Démarrage de telegraf
+      service: 
+        name: telegraf
+        state: started
+        enabled: yes
+      become: yes
+
+  handlers:
+    - name: Restart Telegraf
+      service:
+        name: telegraf
+        state: restarted
+      become: yes
+
+    - name: Update Apt Cache
+      apt:
+        update_cache: yes
+      become: yes
+  
