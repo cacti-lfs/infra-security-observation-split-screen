@@ -4,9 +4,6 @@
   remote_user: cloudadm
   gather_facts: yes
 
-  vars:
-    loki_ip: "10.60.11.27"
-
   tasks: 
     - name: Installation des paquets de base
       become: yes
@@ -59,7 +56,7 @@
             filename: /tmp/positions.yaml
 
           clients:
-            - url: http://{{ loki_ip }}:3100/loki/api/v1/push
+            - url: http://{{ hostvars[groups['role_SUP'][0]]['ansible_host'] }}:3100/loki/api/v1/push
 
           scrape_configs:
           - job_name: journal

@@ -1,24 +1,21 @@
 ---
-- name : Restriction de l'accès SSH au Bastion uniquement
-  hosts: role_ALL:!role_BAST
+- name: Restriction de l'accès SSH au Bastion uniquement
+  hosts: "role_ALL:!role_BAST"
   remote_user: cloudadm
   become: yes
-  vars:
-    bastion_ip: "10.60.11.25"
 
   tasks:  
     - name: Configurer SSH pour n'accepter que le Bastion
       ansible.builtin.lineinfile:
         path: /etc/ssh/sshd_config
         regexp: '^AllowUsers'
-        line: "AllowUsers cloudadm@{{ bastion_ip }}"
+        # On récupère l'IP du premier hôte du groupe role_BAST
+        line: "AllowUsers cloudadm@{{ hostvars[groups['role_BAST'][0]]['ansible_host'] }}"
         state: present
-        #validate: '/usr/sbin/sshd -t'
       notify: Restart SSH
       
-    
   handlers:
     - name: Restart SSH
-      service:
+      ansible.builtin.service:
         name: ssh
         state: restarted

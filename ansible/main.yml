@@ -1,0 +1,25 @@
+---
+- name: Orchestration infra Trix
+  hosts: localhost
+  gather_facts: no
+
+# --- COMMUN ---
+- import_playbook: playbooks/all/0_ssh_limit.yaml
+- import_playbook: playbooks/all/1_name_hosts.yaml  
+- import_playbook: playbooks/all/2_install_promtail.yaml 
+- import_playbook: playbooks/all/3_install_telegraf.yaml 
+
+# --- APPLI ---
+- import_playbook: playbooks/appli/1_install_appliweb.yaml
+
+# --- REVERSE PROXY ---
+- import_playbook: playbooks/rvprx/1_install_nginx.yaml
+
+# --- SUPERVISION ---
+- import_playbook: playbooks/sup/1_install_grafana.yaml
+- import_playbook: playbooks/sup/2_install_influxdb.yaml
+- import_playbook: playbooks/sup/3_reset_grafana_admin.yaml
+# - import_playbook: playbooks/sup/4_ajout_user_adm_grafana.yaml
+- import_playbook: playbooks/sup/5_install_loki.yaml
+- import_playbook: playbooks/sup/6_config_datasources.yaml
+# - import_playbook: playbooks/sup/7_deploy_dashboard.yaml

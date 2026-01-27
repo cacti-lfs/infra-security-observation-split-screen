@@ -4,9 +4,6 @@
   remote_user: cloudadm
   gather_facts: yes
 
-  vars:
-    influx_ip: "10.60.11.27"
-
   tasks: 
     - name: Nettoyage config Influx cassée
       file:
@@ -80,7 +77,7 @@
             omit_hostname = false
 
           [[outputs.influxdb]]
-            urls = ["http://{{ influx_ip }}:8086"]
+            urls = ["http://{{ hostvars[groups['role_SUP'][0]]['ansible_host'] }}:8086"]
             database = "telegraf"
 
           [[inputs.cpu]]
