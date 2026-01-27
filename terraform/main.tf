@@ -35,7 +35,7 @@ resource "proxmox_vm_qemu" "vm_reverse_proxy" {
     # Création du compte local
     ciuser = "cloudadm"
     cipassword = var.cloudadm_password
-    # cicustom = "user=local:snippets/user_data_trix.yml"
+
 
     # Ressources (Possibilité de surcharger les valeurs du template ici)
     cpu {
@@ -93,7 +93,7 @@ resource "proxmox_vm_qemu" "vm_appli" {
     # Création du compte local
     ciuser = "cloudadm"
     cipassword = var.cloudadm_password
-    # cicustom = "user=local:snippets/user_data_trix.yml"
+
 
     # Ressources (Possibilité de surcharger les valeurs du template ici)
     cpu {
@@ -151,7 +151,7 @@ resource "proxmox_vm_qemu" "vm_supervision" {
     # Création du compte local
     ciuser = "cloudadm"
     cipassword = var.cloudadm_password
-    # cicustom = "user=local:snippets/user_data_trix.yml"
+
 
     # Ressources (Possibilité de surcharger les valeurs du template ici)
     cpu {
@@ -209,7 +209,7 @@ resource "proxmox_vm_qemu" "vm_bastion" {
     # Création du compte local
     ciuser = "cloudadm"
     cipassword = var.cloudadm_password
-    # cicustom = "user=local:snippets/user_data_trix.yml"
+
 
     # Ressources (Possibilité de surcharger les valeurs du template ici)
     cpu {
