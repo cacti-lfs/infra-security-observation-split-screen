@@ -4,10 +4,11 @@
   remote_user: cloudadm
   gather_facts: yes
   vars:
-    app_dir: /srv/
+    app_dir: /srv/timeapp
     app_user: www-data
     app_group: www-data
     venv_path: "{{ app_dir }}/venv"
+    db_path: "{{ app_dir }}/stats.db"
   tasks:
     - name: Installation python3
       apt:
