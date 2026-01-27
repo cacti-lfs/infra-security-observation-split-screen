@@ -24,8 +24,9 @@
         name:
           - flask
           - gunicorn
-        virtualenv: /home/cloudadm/app_venv
+        virtualenv: "{{ venv_path }}"
         virtualenv_command: python3 -m venv
+      become: yes
 
     - name: Creation du répertoire
       file:
