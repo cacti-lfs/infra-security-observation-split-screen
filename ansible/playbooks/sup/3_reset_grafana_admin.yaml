@@ -1,0 +1,21 @@
+---
+- name: Reset Grafana Admin Password
+  hosts: role_SUP
+  remote_user: cloudadm
+  become: yes
+  gather_facts: no
+
+  vars_files:
+    - ./vars/secrets.yml
+
+  tasks:
+    - name: Force le mot de passe admin via grafana-cli
+      command: >
+        grafana-cli admin reset-admin-password "{{ grafana_admin_password }}"
+      register: reset_result
+      changed_when: "'admin password changed' in reset_result.stdout"
+
+    - name: Redémarrage de Grafana pour valider les changements
+      service:
+        name: grafana-server
+        state: restarted
