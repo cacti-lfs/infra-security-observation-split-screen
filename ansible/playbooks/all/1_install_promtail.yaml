@@ -1,0 +1,87 @@
+---
+- name: Installation et Configuration de Promtail
+  hosts: 
+  remote_user: cloudadm
+  gather_facts: yes
+
+  vars:
+    loki_ip: "10.60.11.27"
+
+  tasks: 
+    - name: Installation des packets
+      apt:
+        name:
+          - wget
+          - gnupg
+          - apt-transport-https
+          - software-properties-common
+        state: present
+        update_cache: yes
+    
+    - name: Installation de la clé GPG (méthode de-armored)
+      shell: |
+        wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor --yes -o /etc/apt/keyrings/grafana.gpg
+      become: yes
+
+    - name: Ajout du dépôt Grafana (Format Moderne)
+      copy:
+        dest: /etc/apt/sources.list.d/grafana.sources
+        content: |
+          Types: deb
+          URIs: https://apt.grafana.com
+          Suites: stable
+          Components: main
+          Signed-By: /etc/apt/keyrings/grafana.gpg
+      become: yes
+
+    - name: Installation du paquet Promtail
+      apt:
+        name: promtail
+        state: present
+        update_cache: yes
+
+    - name: Configuration de Promptail
+      copy:
+        dest: /etc/promtail/config.yml
+        content: |
+          server:
+            http_listen_port: 9080
+            grpc_listen_port: 0
+
+          positions:
+            filename: /tmp/positions.yaml
+
+          clients:
+            - url: http://{{ loki_ip }}:3100/loki/api/v1/push
+
+          scrape_configs:
+          - job_name: system
+            static_configs:
+            - targets:
+                - localhost
+              labels:
+                job: varlogs
+                # Récupère automatiquement le nom de la machine dans l'inventaire
+                host: {{ inventory_hostname }}
+                __path__: /var/log/*.log
+      notify: Restart Promtail
+
+    - name : Démarrage et activation de Promptail
+      service: 
+        name: promtail
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: Restart Promtail
+      service:
+        name: promtail
+        state: restarted
+
+      
+        
+
+
+
+
+
