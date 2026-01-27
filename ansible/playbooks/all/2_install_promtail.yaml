@@ -1,5 +1,5 @@
 ---
-- name: Installation et Configuration de Promtail
+- name: Installation et Configuration de Promtail (Mode Journal)
   hosts: role_ALL
   remote_user: cloudadm
   gather_facts: yes
@@ -8,22 +8,21 @@
     loki_ip: "10.60.11.27"
 
   tasks: 
-    - name: Installation des packets
+    - name: Installation des paquets de base
+      become: yes
       apt:
-        name:
-          - wget
-          - gnupg
-          - apt-transport-https
+        name: [wget, gnupg, apt-transport-https]
         state: present
         update_cache: yes
-      become: yes
     
-    - name: Installation de la clé GPG (méthode de-armored)
-      shell: |
-        wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor --yes -o /etc/apt/keyrings/grafana.gpg
+    - name: Installation de la clé GPG Grafana
       become: yes
+      shell: |
+        mkdir -p /etc/apt/keyrings
+        wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor --yes -o /etc/apt/keyrings/grafana.gpg
 
-    - name: Ajout du dépôt Grafana (Format Moderne)
+    - name: Ajout du dépôt Grafana
+      become: yes
       copy:
         dest: /etc/apt/sources.list.d/grafana.sources
         content: |
@@ -32,16 +31,23 @@
           Suites: stable
           Components: main
           Signed-By: /etc/apt/keyrings/grafana.gpg
-      become: yes
 
-    - name: Installation du paquet Promtail
+    - name: Installation de Promtail
+      become: yes
       apt:
         name: promtail
         state: present
         update_cache: yes
-      become: yes
 
-    - name: Configuration de Promptail
+    - name: Autoriser Promtail à lire le Journal (Groupe adm)
+      become: yes
+      user:
+        name: promtail
+        groups: adm
+        append: yes
+
+    - name: Configuration de Promtail (Scraping Journal)
+      become: yes
       copy:
         dest: /etc/promtail/config.yml
         content: |
@@ -56,19 +62,19 @@
             - url: http://{{ loki_ip }}:3100/loki/api/v1/push
 
           scrape_configs:
-          - job_name: system
-            static_configs:
-            - targets:
-                - localhost
+          - job_name: journal
+            journal:
+              max_age: 12h
               labels:
-                job: varlogs
-                # Récupère automatiquement le nom de la machine dans l'inventaire
+                job: systemd-journal
                 host: "{{ inventory_hostname }}"
-                __path__: /var/log/*.log
+            relabel_configs:
+              - source_labels: ['__journal__systemd_unit']
+                target_label: 'unit'
       notify: Restart Promtail
-      become: yes
 
-    - name : Démarrage et activation de Promptail
+    - name: Démarrage et activation de Promtail
+      become: yes
       service: 
         name: promtail
         state: started
@@ -76,15 +82,7 @@
 
   handlers:
     - name: Restart Promtail
+      become: yes
       service:
         name: promtail
         state: restarted
-      become: yes
-
-      
-        
-
-
-
-
-
