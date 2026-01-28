@@ -1,0 +1,27 @@
+---
+- name: Déploiement du/des dashboards
+  hosts: role_SUP
+  remote_user: cloudadm
+  vars:
+    loki_datasource_uid: "Loki-Trix"
+    influxdb_datasource_uid: "InfluxDB-Trix"
+    env_name: "TRIX-INFRA"
+
+  vars_files:
+  - "./vars/secrets.yml"
+
+
+  tasks:
+    - name: Transférer le fichier dashboard JSON sur le serveur
+      ansible.builtin.copy:
+        src: "templates/split_screen_dashboard.json"  # On suppose qu'il est dans un dossier 'files'
+        dest: "/tmp/split_screen_dashboard.json"
+        mode: '0644'
+    - name: Importer le dashboard dans Grafana
+      community.grafana.grafana_dashboard:
+        url: "http://localhost:3000"
+        url_username: "{{ grafana_admin_user }}"
+        url_password: "{{ grafana_admin_password }}"
+        state: present
+        overwrite: yes
+        path: "/tmp/split_screen_dashboard.json" # Le module lit le fichier localement sur la VM
