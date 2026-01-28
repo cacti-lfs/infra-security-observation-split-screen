@@ -1,0 +1,48 @@
+---
+- name: Création des règles d'alertes Grafana via API
+  hosts: role_SUP
+  remote_user: cloudadm
+  vars_files:
+    - "./vars/secrets.yml"
+
+  tasks:
+    - name: Lire le fichier JSON des alertes
+      ansible.builtin.set_fact:
+        alert_data: "{{ lookup('file', 'templates/split_screen_alerts.json') | from_json }}"
+
+    - name: 1. Créer le dossier SUPERVISION
+      ansible.builtin.uri:
+        url: "http://localhost:3000/api/folders"
+        method: POST
+        user: "{{ grafana_admin_user }}"
+        password: "{{ grafana_admin_password }}"
+        force_basic_auth: yes
+        body_format: json
+        body:
+          uid: "sup_folder_001"
+          title: "SUPERVISION"
+        status_code: [200, 201, 409]
+
+    - name: 2. Injecter alertes dans le dossier SUPERVISION (PUT)
+      ansible.builtin.uri:
+        url: "http://localhost:3000/api/v1/provisioning/alert-rules/{{ item.uid }}"
+        method: PUT
+        user: "{{ grafana_admin_user }}" 
+        password: "{{ grafana_admin_password }}"
+        force_basic_auth: yes
+        body_format: json
+        body: |
+          {
+            "uid": "{{ item.uid }}",
+            "title": "{{ item.title }}",
+            "condition": "{{ item.condition }}",
+            "data": {{ item.data | to_json }},
+            "annotations": {{ item.annotations | to_json }},
+            "noDataState": "{{ item.noDataState }}",
+            "execErrState": "{{ item.execErrState }}",
+            "for": "{{ item.for }}",
+            "ruleGroup": "TrixGroup",
+            "folderUID": "sup_folder_001"
+          }
+        status_code: [200, 201, 404]
+      loop: "{{ alert_data.groups[0].rules }}"

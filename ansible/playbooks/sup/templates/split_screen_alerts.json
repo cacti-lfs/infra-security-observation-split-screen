@@ -1,0 +1,346 @@
+{
+    "apiVersion": 1,
+    "groups": [
+        {
+            "orgId": 1,
+            "name": "1m",
+            "folder": "Alerts",
+            "interval": "1m",
+            "rules": [
+                {
+                    "uid": "ffbiui8ewe6f4a",
+                    "title": "CPU-Alert",
+                    "condition": "C",
+                    "data": [
+                        {
+                            "refId": "A",
+                            "relativeTimeRange": {
+                                "from": 60,
+                                "to": 0
+                            },
+                            "datasourceUid": "dfbg4ka7l88w0a",
+                            "model": {
+                                "groupBy": [
+                                    {
+                                        "params": [
+                                            "1m"
+                                        ],
+                                        "type": "time"
+                                    },
+                                    {
+                                        "params": [
+                                            "host::tag"
+                                        ],
+                                        "type": "tag"
+                                    },
+                                    {
+                                        "params": [
+                                            "none"
+                                        ],
+                                        "type": "fill"
+                                    }
+                                ],
+                                "intervalMs": 1000,
+                                "maxDataPoints": 43200,
+                                "measurement": "cpu",
+                                "orderByTime": "ASC",
+                                "policy": "default",
+                                "refId": "A",
+                                "resultFormat": "time_series",
+                                "select": [
+                                    [
+                                        {
+                                            "params": [
+                                                "usage_system"
+                                            ],
+                                            "type": "field"
+                                        },
+                                        {
+                                            "params": [],
+                                            "type": "mean"
+                                        }
+                                    ]
+                                ],
+                                "tags": [
+                                    {
+                                        "key": "cpu",
+                                        "operator": "=",
+                                        "value": "cpu-total"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "refId": "B",
+                            "relativeTimeRange": {
+                                "from": 0,
+                                "to": 0
+                            },
+                            "datasourceUid": "__expr__",
+                            "model": {
+                                "conditions": [
+                                    {
+                                        "evaluator": {
+                                            "params": [],
+                                            "type": "gt"
+                                        },
+                                        "operator": {
+                                            "type": "and"
+                                        },
+                                        "query": {
+                                            "params": [
+                                                "B"
+                                            ]
+                                        },
+                                        "reducer": {
+                                            "params": [],
+                                            "type": "last"
+                                        },
+                                        "type": "query"
+                                    }
+                                ],
+                                "datasource": {
+                                    "type": "__expr__",
+                                    "uid": "__expr__"
+                                },
+                                "expression": "A",
+                                "intervalMs": 1000,
+                                "maxDataPoints": 43200,
+                                "reducer": "last",
+                                "refId": "B",
+                                "settings": {
+                                    "mode": "dropNN"
+                                },
+                                "type": "reduce"
+                            }
+                        },
+                        {
+                            "refId": "C",
+                            "relativeTimeRange": {
+                                "from": 0,
+                                "to": 0
+                            },
+                            "datasourceUid": "__expr__",
+                            "model": {
+                                "conditions": [
+                                    {
+                                        "evaluator": {
+                                            "params": [
+                                                80
+                                            ],
+                                            "type": "gt"
+                                        },
+                                        "operator": {
+                                            "type": "and"
+                                        },
+                                        "query": {
+                                            "params": [
+                                                "C"
+                                            ]
+                                        },
+                                        "reducer": {
+                                            "params": [],
+                                            "type": "last"
+                                        },
+                                        "type": "query"
+                                    }
+                                ],
+                                "datasource": {
+                                    "type": "__expr__",
+                                    "uid": "__expr__"
+                                },
+                                "expression": "B",
+                                "intervalMs": 1000,
+                                "maxDataPoints": 43200,
+                                "refId": "C",
+                                "type": "threshold"
+                            }
+                        }
+                    ],
+                    "noDataState": "NoData",
+                    "execErrState": "Error",
+                    "for": "1m",
+                    "annotations": {
+                        "description": "Merci de vérifier les processus en cours.",
+                        "summary": "⚠️ Le serveur {{ $labels.host }} est à {{ $values.B.Value | printf \"%.2f\" }} %"
+                    },
+                    "isPaused": false,
+                    "notification_settings": {
+                        "receiver": "Teams Alerting"
+                    }
+                },
+                {
+                    "uid": "efbj6xtzan20wb",
+                    "title": "HTTP STATUS",
+                    "condition": "C",
+                    "data": [
+                        {
+                            "refId": "A",
+                            "queryType": "alerting",
+                            "relativeTimeRange": {
+                                "from": 60,
+                                "to": 0
+                            },
+                            "datasourceUid": "dfbg4ka7l88w0a",
+                            "model": {
+                                "datasource": {
+                                    "type": "influxdb",
+                                    "uid": "dfbg4ka7l88w0a"
+                                },
+                                "expression": "",
+                                "groupBy": [
+                                    {
+                                        "params": [
+                                            "1m"
+                                        ],
+                                        "type": "time"
+                                    },
+                                    {
+                                        "params": [
+                                            "server::tag"
+                                        ],
+                                        "type": "tag"
+                                    },
+                                    {
+                                        "params": [
+                                            "none"
+                                        ],
+                                        "type": "fill"
+                                    }
+                                ],
+                                "instant": false,
+                                "intervalMs": 1000,
+                                "maxDataPoints": 43200,
+                                "measurement": "http_response",
+                                "orderByTime": "ASC",
+                                "policy": "default",
+                                "queryType": "alerting",
+                                "range": true,
+                                "refId": "A",
+                                "resultFormat": "time_series",
+                                "select": [
+                                    [
+                                        {
+                                            "params": [
+                                                "http_response_code"
+                                            ],
+                                            "type": "field"
+                                        },
+                                        {
+                                            "params": [],
+                                            "type": "last"
+                                        }
+                                    ]
+                                ],
+                                "tags": []
+                            }
+                        },
+                        {
+                            "refId": "B",
+                            "relativeTimeRange": {
+                                "from": 0,
+                                "to": 0
+                            },
+                            "datasourceUid": "__expr__",
+                            "model": {
+                                "conditions": [
+                                    {
+                                        "evaluator": {
+                                            "params": [
+                                                0,
+                                                0
+                                            ],
+                                            "type": "gt"
+                                        },
+                                        "operator": {
+                                            "type": "and"
+                                        },
+                                        "query": {
+                                            "params": []
+                                        },
+                                        "reducer": {
+                                            "params": [],
+                                            "type": "avg"
+                                        },
+                                        "type": "query"
+                                    }
+                                ],
+                                "datasource": {
+                                    "name": "Expression",
+                                    "type": "__expr__",
+                                    "uid": "__expr__"
+                                },
+                                "expression": "A",
+                                "intervalMs": 1000,
+                                "maxDataPoints": 43200,
+                                "reducer": "last",
+                                "refId": "B",
+                                "settings": {
+                                    "mode": "dropNN"
+                                },
+                                "type": "reduce"
+                            }
+                        },
+                        {
+                            "refId": "C",
+                            "relativeTimeRange": {
+                                "from": 0,
+                                "to": 0
+                            },
+                            "datasourceUid": "__expr__",
+                            "model": {
+                                "conditions": [
+                                    {
+                                        "evaluator": {
+                                            "params": [
+                                                200,
+                                                200
+                                            ],
+                                            "type": "outside_range"
+                                        },
+                                        "operator": {
+                                            "type": "and"
+                                        },
+                                        "query": {
+                                            "params": []
+                                        },
+                                        "reducer": {
+                                            "params": [],
+                                            "type": "avg"
+                                        },
+                                        "type": "query"
+                                    }
+                                ],
+                                "datasource": {
+                                    "name": "Expression",
+                                    "type": "__expr__",
+                                    "uid": "__expr__"
+                                },
+                                "expression": "B",
+                                "intervalMs": 1000,
+                                "maxDataPoints": 43200,
+                                "refId": "C",
+                                "type": "threshold"
+                            }
+                        }
+                    ],
+                    "dashboardUid": "an8zkld",
+                    "panelId": 7,
+                    "noDataState": "Alerting",
+                    "execErrState": "Error",
+                    "for": "1m",
+                    "annotations": {
+                        "__dashboardUid__": "an8zkld",
+                        "__panelId__": "7",
+                        "description": "L'application web a renvoyé un code d'erreur. Vérifier le service.",
+                        "summary": "⚠️ COUPURE TOTALE : Le site Intranet ne répond plus !"
+                    },
+                    "isPaused": false,
+                    "notification_settings": {
+                        "receiver": "Teams Alerting"
+                    }
+                }
+            ]
+        }
+    ]
+}
