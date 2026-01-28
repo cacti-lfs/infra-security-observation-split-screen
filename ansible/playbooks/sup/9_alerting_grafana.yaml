@@ -44,5 +44,5 @@
             "ruleGroup": "TrixGroup",
             "folderUID": "sup_folder_001"
           }
-        status_code: [200, 201, 404]
+        status_code: [200, 201, 404, 412]
       loop: "{{ alert_data.groups[0].rules }}"

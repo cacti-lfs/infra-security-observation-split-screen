@@ -109,87 +109,6 @@
         "wideLayout": true
       },
       "pluginVersion": "12.3.1+security-01",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "dfbg4ka7l88w0a"
-          },
-          "query": "SELECT last(\"result_code\") FROM \"http_response\" WHERE (\"type\" = 'app_internal') AND $timeFilter",
-          "rawQuery": true,
-          "refId": "A",
-          "resultFormat": "time_series"
-        }
-      ],
-      "title": "HTTP STATUS",
-      "type": "stat"
-    },
-    {
-      "gridPos": {
-        "h": 4,
-        "w": 2,
-        "x": 2,
-        "y": 1
-      },
-      "id": 9,
-      "libraryPanel": {
-        "name": "HTTPS STATUS",
-        "uid": "bfbijoypu8ohse"
-      },
-      "title": "HTTPS STATUS",
-      "type": "library-panel-ref"
-    },
-    {
-      "datasource": {
-        "uid": "ffbg4kcg4ge80f"
-      },
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 20,
-        "x": 4,
-        "y": 1
-      },
-      "id": 10,
-      "options": {
-        "dedupStrategy": "none",
-        "enableInfiniteScrolling": false,
-        "enableLogDetails": true,
-        "showControls": false,
-        "showTime": false,
-        "sortOrder": "Descending",
-        "wrapLogMessage": false
-      },
-      "pluginVersion": "12.3.1+security-01",
-      "targets": [
-        {
-          "datasource": {
-            "type": "loki",
-            "uid": "ffbg4kcg4ge80f"
-          },
-          "direction": "backward",
-          "editorMode": "code",
-          "expr": "{job=\"systemd-journal\", unit=\"timeapp.service\"}",
-          "hide": false,
-          "queryType": "range",
-          "refId": "timeapp.service"
-        },
-        {
-          "datasource": {
-            "type": "loki",
-            "uid": "ffbg4kcg4ge80f"
-          },
-          "direction": "backward",
-          "editorMode": "code",
-          "expr": "{job=\"systemd-journal\", unit=\"nginx.service\"}",
-          "hide": false,
-          "queryType": "range",
-          "refId": "nginx.service"
-        }
-      ],
       "title": "Logs APPLI",
       "type": "logs"
     },
@@ -642,7 +561,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Dashboard-TEST",
+  "title": "Dashboard-TRIX",
   "uid": "an8zkld",
   "version": 19
 }

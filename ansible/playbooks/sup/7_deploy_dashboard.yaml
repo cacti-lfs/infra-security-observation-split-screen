@@ -2,26 +2,55 @@
 - name: Déploiement du/des dashboards
   hosts: role_SUP
   remote_user: cloudadm
-  vars:
-    loki_datasource_uid: "Loki-Trix"
-    influxdb_datasource_uid: "InfluxDB-Trix"
-    env_name: "TRIX-INFRA"
-
   vars_files:
-  - "./vars/secrets.yml"
-
+    - "./vars/secrets.yml"
 
   tasks:
+    # 1. Récupération de l'UID pour InfluxDB-Trix
+    - name: Récupérer l'UID réel de la datasource InfluxDB
+      ansible.builtin.uri:
+        url: "http://localhost:3000/api/datasources/name/InfluxDB-Trix" # Nom corrigé
+        method: GET
+        user: "{{ grafana_admin_user }}"
+        password: "{{ grafana_admin_password }}"
+        force_basic_auth: yes
+      register: influx_ds
+
+    # 2. Récupération de l'UID pour Loki-Trix
+    - name: Récupérer l'UID réel de la datasource Loki
+      ansible.builtin.uri:
+        url: "http://localhost:3000/api/datasources/name/Loki-Trix" # Nom corrigé
+        method: GET
+        user: "{{ grafana_admin_user }}"
+        password: "{{ grafana_admin_password }}"
+        force_basic_auth: yes
+      register: loki_ds
+
     - name: Transférer le fichier dashboard JSON sur le serveur
       ansible.builtin.copy:
-        src: "templates/split_screen_dashboard.json"  # On suppose qu'il est dans un dossier 'files'
+        src: "templates/split_screen_dashboard.json"
         dest: "/tmp/split_screen_dashboard.json"
         mode: '0644'
+
+    # 3. Remplacement dynamique des UIDs
+    - name: Corriger l'UID InfluxDB dans le JSON
+      ansible.builtin.replace:
+        path: "/tmp/split_screen_dashboard.json"
+        regexp: 'dfbg4ka7l88w0a'
+        replace: "{{ influx_ds.json.uid }}"
+
+    - name: Corriger l'UID Loki dans le JSON
+      ansible.builtin.replace:
+        path: "/tmp/split_screen_dashboard.json"
+        regexp: 'ffbg4kcg4ge80f'
+        replace: "{{ loki_ds.json.uid }}"
+
+    # 4. Importation
     - name: Importer le dashboard dans Grafana
       community.grafana.grafana_dashboard:
         url: "http://localhost:3000"
-        url_username: "{{ grafana_admin_user }}"
-        url_password: "{{ grafana_admin_password }}"
+        grafana_user: "{{ grafana_admin_user }}"
+        grafana_password: "{{ grafana_admin_password }}"
         state: present
         overwrite: yes
-        path: "/tmp/split_screen_dashboard.json" # Le module lit le fichier localement sur la VM
+        path: "/tmp/split_screen_dashboard.json"
