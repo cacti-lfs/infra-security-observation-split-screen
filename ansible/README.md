@@ -69,3 +69,8 @@ pveum user token add ansible-prov@pve ansible -expire 0 -privsep 0 -comment "Ans
 ```bash
 ansible-galaxy collection install git+https://github.com/ansible-collections/community.proxmox.git
 ```
+
+- Installation plugin grafana
+```
+ansible-galaxy collection install community.grafana --force
+```

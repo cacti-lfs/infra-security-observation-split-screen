@@ -1,25 +1,64 @@
 ---
-- name: Orchestration infra Trix
+- name: Orchestration complète de l'infrastructure Trix
   hosts: localhost
   gather_facts: no
 
-# --- COMMUN ---
-- import_playbook: playbooks/all/0_ssh_limit.yaml
-- import_playbook: playbooks/all/1_name_hosts.yaml  
-- import_playbook: playbooks/all/2_install_promtail.yaml 
-- import_playbook: playbooks/all/3_install_telegraf.yaml 
+# ==========================================
+# 1. CONFIGURATION COMMUNE (Toutes les VMs)
+# ==========================================
+- name: Phase commune - Sécurité et Agents
+  import_playbook: playbooks/all/0_ssh_limit.yaml
 
-# --- APPLI ---
-- import_playbook: playbooks/appli/1_install_appliweb.yaml
+- name: Phase commune - Renommage
+  import_playbook: playbooks/all/1_name_hosts.yaml  
 
-# --- REVERSE PROXY ---
-- import_playbook: playbooks/rvprx/1_install_nginx.yaml
+- name: Phase commune - Installation PromTail
+  import_playbook: playbooks/all/2_install_promtail.yaml 
 
-# --- SUPERVISION ---
-- import_playbook: playbooks/sup/1_install_grafana.yaml
-- import_playbook: playbooks/sup/2_install_influxdb.yaml
-- import_playbook: playbooks/sup/3_reset_grafana_admin.yaml
-# - import_playbook: playbooks/sup/4_ajout_user_adm_grafana.yaml
-- import_playbook: playbooks/sup/5_install_loki.yaml
-- import_playbook: playbooks/sup/6_config_datasources.yaml
-# - import_playbook: playbooks/sup/7_deploy_dashboard.yaml
+- name: Phase commune - Installation Telegraf
+  import_playbook: playbooks/all/3_install_telegraf.yaml 
+
+# ==========================================
+# 2. SERVEUR APPLICATIF (WEB)
+# ==========================================
+- name: Déploiement de l'application TimeApp (Python)
+  import_playbook: playbooks/appli/1_install_appliweb.yaml
+
+# ==========================================
+# 3. RÉSEAU ET ACCÈS (REVERSE PROXY)
+# ==========================================
+- name: Installation & Configuration du Reverse Proxy Nginx
+  import_playbook: playbooks/rvprx/1_install_nginx.yaml
+
+- name: Adaptation Telegraf pour Reverse Proxy
+  import_playbook: playbooks/rvprx/2_modif_telegraf.yaml
+
+# ==========================================
+# 4. SUPERVISION (GRAFANA STACK)
+# ==========================================
+- name: Installation de Grafana
+  import_playbook: playbooks/sup/1_install_grafana.yaml
+
+- name: Installation de la base de métriques InfluxDB
+  import_playbook: playbooks/sup/2_install_influxdb.yaml
+
+- name: Sécurisation du compte admin Grafana
+  import_playbook: playbooks/sup/3_reset_grafana_admin.yaml
+
+- name: Installation du moteur de logs Loki
+  import_playbook: playbooks/sup/4_install_loki.yaml
+
+- name: Création des utilisateurs Grafana
+  import_playbook: playbooks/sup/8_ajout_user_adm_grafana.yaml
+
+- name: Connexion des sources de données (InfluxDB & Loki)
+  import_playbook: playbooks/sup/5_config_datasources.yaml
+
+- name: Configuration des notifications Webhook (Teams)
+  import_playbook: playbooks/sup/6_config_webhook.yaml
+
+- name: Déploiement du Dashboard TRIX
+  import_playbook: playbooks/sup/7_deploy_dashboard.yaml
+
+- name: Mise en place des règles d'Alerting API
+  import_playbook: playbooks/sup/9_alerting_grafana.yaml
