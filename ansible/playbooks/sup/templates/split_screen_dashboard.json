@@ -37,7 +37,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "dfbg4ka7l88w0a"
+        "uid": "dfbjgaabgjf9cf"
       },
       "fieldConfig": {
         "defaults": {
@@ -49,23 +49,20 @@
               "options": {
                 "0": {
                   "color": "green",
-                  "index": 0,
+                  "index": 1,
                   "text": "OK"
+                },
+                "1": {
+                  "color": "red",
+                  "index": 2
+                },
+                "404": {
+                  "color": "orange",
+                  "index": 0,
+                  "text": "KO"
                 }
               },
               "type": "value"
-            },
-            {
-              "options": {
-                "from": 1,
-                "result": {
-                  "color": "red",
-                  "index": 1,
-                  "text": "KO"
-                },
-                "to": 100
-              },
-              "type": "range"
             }
           ],
           "thresholds": {
@@ -85,14 +82,14 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
-        "w": 2,
+        "h": 5,
+        "w": 3,
         "x": 0,
         "y": 1
       },
-      "id": 7,
+      "id": 8,
       "options": {
-        "colorMode": "background_solid",
+        "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -108,7 +105,169 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.1+security-01",
+      "pluginVersion": "12.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "dfbjgaabgjf9cf"
+          },
+          "query": "SELECT last(\"result_code\") FROM \"http_response\" WHERE \"type\" = 'app_internal' AND $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ],
+      "title": "HTTP",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "dfbjgaabgjf9cf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "green",
+                  "index": 1,
+                  "text": "OK"
+                },
+                "1": {
+                  "color": "red",
+                  "index": 2,
+                  "text": "KO"
+                },
+                "4": {
+                  "color": "red",
+                  "index": 3,
+                  "text": "KO"
+                },
+                "404": {
+                  "color": "orange",
+                  "index": 0,
+                  "text": "KO"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 3,
+        "y": 1
+      },
+      "id": 9,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "dfbjgaabgjf9cf"
+          },
+          "query": "SELECT last(\"result_code\") FROM \"http_response\" WHERE \"type\" = 'reverse_proxy' AND $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series"
+        }
+      ],
+      "title": "HTTPs",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "cfbjgackc92bkd"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 18,
+        "x": 6,
+        "y": 1
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "background_solid",
+        "dedupStrategy": "none",
+        "enableInfiniteScrolling": false,
+        "enableLogDetails": true,
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showControls": false,
+        "showPercentChange": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "textMode": "auto",
+        "wideLayout": true,
+        "wrapLogMessage": false
+      },
+      "pluginVersion": "12.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "cfbjgackc92bkd"
+          },
+          "direction": "backward",
+          "editorMode": "code",
+          "expr": "{unit=\"timeapp.service\"} | json",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
       "title": "Logs APPLI",
       "type": "logs"
     },
@@ -118,7 +277,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 5
+        "y": 6
       },
       "id": 5,
       "panels": [],
@@ -128,7 +287,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "dfbg4ka7l88w0a"
+        "uid": "dfbjgaabgjf9cf"
       },
       "fieldConfig": {
         "defaults": {
@@ -191,7 +350,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 6
+        "y": 7
       },
       "id": 1,
       "options": {
@@ -207,13 +366,13 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.1+security-01",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "alias": "$tag_host",
           "datasource": {
             "type": "influxdb",
-            "uid": "dfbg4ka7l88w0a"
+            "uid": "dfbjgaabgjf9cf"
           },
           "query": "SELECT mean(\"usage_system\") + mean(\"usage_user\") FROM \"cpu\" WHERE \"cpu\" = 'cpu-total' AND \"host\" =~ /^$host$/ AND $timeFilter GROUP BY time($__interval), \"host\" fill(null)",
           "rawQuery": true,
@@ -227,7 +386,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "dfbg4ka7l88w0a"
+        "uid": "dfbjgaabgjf9cf"
       },
       "fieldConfig": {
         "defaults": {
@@ -290,7 +449,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 6
+        "y": 7
       },
       "id": 2,
       "options": {
@@ -306,13 +465,13 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.1+security-01",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "alias": "$tag_host",
           "datasource": {
             "type": "influxdb",
-            "uid": "dfbg4ka7l88w0a"
+            "uid": "dfbjgaabgjf9cf"
           },
           "query": "SELECT mean(\"used_percent\") FROM \"mem\" WHERE \"host\" =~ /^$host$/ AND $timeFilter GROUP BY time($__interval), \"host\" fill(null)",
           "rawQuery": true,
@@ -326,7 +485,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "dfbg4ka7l88w0a"
+        "uid": "dfbjgaabgjf9cf"
       },
       "fieldConfig": {
         "defaults": {
@@ -389,7 +548,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 14
+        "y": 15
       },
       "id": 3,
       "options": {
@@ -405,13 +564,13 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.1+security-01",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "alias": "$tag_host",
           "datasource": {
             "type": "influxdb",
-            "uid": "dfbg4ka7l88w0a"
+            "uid": "dfbjgaabgjf9cf"
           },
           "query": "SELECT mean(\"used_percent\") FROM \"disk\" WHERE \"path\" = '/' AND \"host\" =~ /^$host$/ AND $timeFilter GROUP BY time($__interval), \"host\" fill(null)",
           "rawQuery": true,
@@ -425,7 +584,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "dfbg4ka7l88w0a"
+        "uid": "dfbjgaabgjf9cf"
       },
       "fieldConfig": {
         "defaults": {
@@ -488,7 +647,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 14
+        "y": 15
       },
       "id": 4,
       "options": {
@@ -504,13 +663,13 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.3.1+security-01",
+      "pluginVersion": "12.3.2",
       "targets": [
         {
           "alias": "$tag_host.",
           "datasource": {
             "type": "influxdb",
-            "uid": "dfbg4ka7l88w0a"
+            "uid": "dfbjgaabgjf9cf"
           },
           "query": "SELECT non_negative_derivative(mean(\"bytes_recv\"), 1s) * 8 FROM \"net\" WHERE \"interface\" != 'lo' AND \"host\" =~ /^$host$/ AND $timeFilter GROUP BY time($__interval), \"host\" fill(null)",
           "rawQuery": true,
@@ -529,16 +688,14 @@
     "list": [
       {
         "current": {
-          "text": [
-            "All"
-          ],
+          "text": "All",
           "value": [
             "$__all"
           ]
         },
         "datasource": {
           "type": "influxdb",
-          "uid": "dfbg4ka7l88w0a"
+          "uid": "dfbjgaabgjf9cf"
         },
         "definition": "SHOW TAG VALUES WITH KEY = \"host\"",
         "includeAll": true,
@@ -563,5 +720,5 @@
   "timezone": "browser",
   "title": "Dashboard-TRIX",
   "uid": "an8zkld",
-  "version": 19
+  "version": 13
 }
