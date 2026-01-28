@@ -1,0 +1,22 @@
+---
+- name: Ajout configuration Telegraf
+  hosts: role_RVPRX
+  remote_user: cloudadm
+  become: yes          # N'oublie pas le become pour écrire dans /etc/
+  gather_facts: yes
+
+  tasks:
+    - name: Ajouter le monitoring HTTP dans un fichier différent
+      ansible.builtin.template:
+        src: templates/http_monitoring.conf.j2
+        dest: /etc/telegraf/telegraf.d/http_monitoring.conf
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Redémarrer Telegraf
+
+  handlers:
+    - name: Redémarrer Telegraf
+      ansible.builtin.service:
+        name: telegraf
+        state: restarted

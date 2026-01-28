@@ -1,0 +1,9 @@
+# Ce test restera au vert (HTTP Interne)
+[[inputs.http_response]]
+  urls = ["http://10.60.11.39:8000"]
+  tags = { type = "app_internal" }
+
+# Ce test passera au rouge tant que tu n'as pas mis de SSL sur Nginx
+[[inputs.http_response]]
+  urls = ["https://10.60.11.36"] # Note le "https" ici
+  tags = { type = "reverse_proxy" }

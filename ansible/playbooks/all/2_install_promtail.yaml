@@ -40,7 +40,9 @@
       become: yes
       user:
         name: promtail
-        groups: adm
+        groups: 
+          - adm
+          - systemd-journal
         append: yes
 
     - name: Configuration de Promtail (Scraping Journal)
