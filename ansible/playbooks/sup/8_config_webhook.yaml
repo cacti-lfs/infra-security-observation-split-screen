@@ -1,0 +1,19 @@
+---
+- name: Configuration Contact Point Teams
+  hosts: role_SUP
+  remote_user: cloudadm
+
+  vars_files:
+  - ./vars/secrets.yml
+
+  tasks:
+    - name: Configuration du point de contact Teams
+      community.grafana.grafana_contact_point:
+        url: "{{{ hostvars}}}"
+        url_username: "{{ }}"
+        url_password: "{{ }}"
+        name: "Teams"
+        settings:
+          url: "{{ }}"
+        type: teams
+        state: present
