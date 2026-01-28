@@ -1,19 +1,31 @@
 ---
-- name: Configuration Contact Point Teams
+- name: Configuration Contact Point Teams via API
   hosts: role_SUP
   remote_user: cloudadm
 
   vars_files:
-  - ./vars/secrets.yml
+    - "./vars/secrets.yml"
+  vars:
+    grafana_api_url: "http://localhost:3000"
 
   tasks:
-    - name: Configuration du point de contact Teams
-      community.grafana.grafana_contact_point:
-        url: "{{{ hostvars}}}"
-        url_username: "{{ }}"
-        url_password: "{{ }}"
-        name: "Teams"
-        settings:
-          url: "{{ }}"
-        type: teams
-        state: present
+    - name: Création du point de contact Teams (API Direct)
+      ansible.builtin.uri:
+        url: "{{ grafana_api_url }}/api/v1/provisioning/contact-points"
+        method: POST
+        user: "{{ grafana_admin_user }}"
+        password: "{{ grafana_admin_password }}"
+        force_basic_auth: yes
+        body_format: json
+        status_code: [200, 202, 204, 409] # 409 = existe déjà
+        body:
+          name: "Teams Split Screen"
+          type: "teams"
+          uid: "teams_alert_01"
+          settings:
+            url: "{{ url_webhook }}"
+      register: api_res
+
+#    - name: Debug de la réponse
+#      ansible.builtin.debug:
+#        var: api_res.status
