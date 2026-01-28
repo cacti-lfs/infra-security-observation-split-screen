@@ -1,5 +1,5 @@
 [[inputs.http_response]]
-  urls = ["http://{{ hostvars['01-SRV-APPLI-TRIX']['ansible_host'] }}"]
+  urls = ["http://{{ hostvars['01-SRV-APPLI-TRIX']['ansible_host'] }}:8000"]
   tags = { type = "app_internal" }
 
 [[inputs.http_response]]
