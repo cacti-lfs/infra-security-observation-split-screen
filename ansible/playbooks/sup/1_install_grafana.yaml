@@ -4,6 +4,9 @@
   remote_user: cloudadm
   gather_facts: yes
 
+  vars_files: 
+    - "./vars/secrets.yml"
+
   tasks:
     - name: Nettoyage complet des résidus Apt Grafana
       file:
@@ -55,9 +58,37 @@
         update_cache: yes
       become: yes
 
+
+
+    - name: Configuration SMTP Grafana (Section [smtp] uniquement)
+      ini_file:
+        path: /etc/grafana/grafana.ini
+        section: smtp
+        option: "{{ item.opt }}"
+        value: "{{ item.val }}"
+      loop:
+        - { opt: 'enabled', val: 'true' }
+        - { opt: 'host', val: 'smtp.gmail.com:587' }
+        - { opt: 'user', val: 'anthonyboulinguiez.09@gmail.com' }
+        - { opt: 'password', val: "{{ mdp_alerte_mail }}" }
+        - { opt: 'skip_verify', val: 'true' }
+        - { opt: 'from_address', val: 'anthonyboulinguiez.09@gmail.com' }
+        - { opt: 'from_name', val: 'Grafana Trix' }
+      become: yes
+      notify: Restart Grafana
+
     - name: Start Grafana
       service:
         name: grafana-server
         state: started
         enabled: yes
       become: yes
+
+  handlers:
+    - name: Restart Grafana
+      service:
+        name: grafana-server
+        state: restarted
+      become: yes
+
+      
