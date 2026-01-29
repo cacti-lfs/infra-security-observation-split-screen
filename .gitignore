@@ -1,10 +1,18 @@
+# Terraform
 terraform/terraform.tfvars
 terraform/.terraform*
 terraform/terraform.tfstate
 ansible/.venv
 terraform/terraform.tfstate.backup
+
+# Ansible
 ansible/setup_env.sh
 ansible/playbooks/sup/vars/.*
 ansible/.DS_Store
 ansible/{
 ansible/{changed:
+
+# Packer
+packer/debian*
+packer/p*
+packer/v*
