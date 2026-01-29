@@ -6,7 +6,6 @@
     - "./vars/secrets.yml"
 
   tasks:
-    # 1. On récupère les nouveaux UIDs pour corriger les alertes à la volée
     - name: Récupérer l'UID InfluxDB-Trix
       ansible.builtin.uri:
         url: "http://localhost:3000/api/datasources/name/InfluxDB-Trix"
@@ -18,14 +17,28 @@
 
     - name: Lire et corriger le JSON des alertes
       ansible.builtin.set_fact:
-        # On remplace l'ancien UID par le nouveau directement dans le texte du JSON
         alert_content: "{{ lookup('file', 'templates/split_screen_alerts.json') | replace('dfbg4ka7l88w0a', influx_ds.json.uid) }}"
 
-    - name: Parser le contenu corrigé
+    - name: Parser le contenu
       ansible.builtin.set_fact:
         alert_data: "{{ alert_content | from_json }}"
 
-    - name: 1. Créer ou valider le dossier SUPERVISION
+    - name: Autoriser l'édition des alertes provisionnées dans grafana.ini
+      ansible.builtin.lineinfile:
+        path: /etc/grafana/grafana.ini
+        regexp: '^;?allow_ui_updates ='
+        line: 'allow_ui_updates = true'
+      become: true
+      register: graf_config
+
+    - name: Redémarrer Grafana si nécessaire
+      ansible.builtin.systemd:
+        name: grafana-server
+        state: restarted
+      become: true
+      when: graf_config.changed
+
+    - name: 1. Créer le dossier SUPERVISION
       ansible.builtin.uri:
         url: "http://localhost:3000/api/folders"
         method: POST
@@ -36,10 +49,25 @@
         body:
           uid: "sup_folder_001"
           title: "SUPERVISION"
-        # Ajout du 412 pour éviter l'échec si le dossier est déjà là
         status_code: [200, 201, 409, 412]
 
-    - name: 2. Injecter les alertes dans le dossier SUPERVISION (POST)
+    - name: 1b. Forcer les permissions Admin pour déverrouiller l'UI
+      ansible.builtin.uri:
+        url: "http://localhost:3000/api/folders/sup_folder_001/permissions"
+        method: POST
+        user: "{{ grafana_admin_user }}"
+        password: "{{ grafana_admin_password }}"
+        force_basic_auth: yes
+        body_format: json
+        body:
+          items:
+            - role: "Admin"
+              permission: 4 
+            - role: "Editor"
+              permission: 2
+        status_code: [200, 201, 207]
+
+    - name: 2. Injecter les alertes en mode LIBRE (Edit autorisé)
       ansible.builtin.uri:
         url: "http://localhost:3000/api/v1/provisioning/alert-rules"
         method: POST
@@ -47,6 +75,8 @@
         password: "{{ grafana_admin_password }}"
         force_basic_auth: yes
         body_format: json
+        headers:
+          X-Disable-Provenance: "true" # Indispensable pour l'UI
         body:
           uid: "{{ item.uid }}"
           title: "{{ item.title }}"
@@ -58,31 +88,6 @@
           for: "{{ item.for }}"
           ruleGroup: "TrixGroup"
           folderUID: "sup_folder_001"
-        # 201 = Créé, 400/409/412 = Déjà existant ou erreur de validation
-        status_code: [201, 400, 409, 412]
+          provenance: "" # Force la provenance à VIDE pour l'UI
+        status_code: [200, 201, 400, 409]
       loop: "{{ alert_data.groups[0].rules }}"
-      register: post_alerts
-
-    # Si le POST a échoué car l'alerte existe, on tente le PUT pour mettre à jour
-    - name: 3. Mettre à jour les alertes existantes (PUT)
-      ansible.builtin.uri:
-        url: "http://localhost:3000/api/v1/provisioning/alert-rules/{{ item.item.uid }}"
-        method: PUT
-        user: "{{ grafana_admin_user }}" 
-        password: "{{ grafana_admin_password }}"
-        force_basic_auth: yes
-        body_format: json
-        body:
-          uid: "{{ item.item.uid }}"
-          title: "{{ item.item.title }}"
-          condition: "{{ item.item.condition }}"
-          data: "{{ item.item.data }}"
-          annotations: "{{ item.item.annotations }}"
-          noDataState: "{{ item.item.noDataState }}"
-          execErrState: "{{ item.item.execErrState }}"
-          for: "{{ item.item.for }}"
-          ruleGroup: "TrixGroup"
-          folderUID: "sup_folder_001"
-        status_code: [200, 204]
-      loop: "{{ post_alerts.results }}"
-      when: item.status == 400 or item.status == 409
