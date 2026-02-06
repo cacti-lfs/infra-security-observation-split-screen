@@ -14,5 +14,5 @@ ansible/{changed:
 
 # Packer
 packer/debian*
-packer/p*
-packer/v*
+packer/preseed.cfg
+packer/packer.pkvars.hcl
